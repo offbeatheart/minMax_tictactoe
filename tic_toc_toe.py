@@ -4,11 +4,11 @@ class Game_statues:
         self.board_setup()
 
     def board_setup(self):
-        self.x_spaces = [0,1,0,
-                         1,0,0,
-                         0,0,0] 
-        self.o_spaces = [0,0,1,
+        self.x_spaces = [1,1,1,
                          0,0,0,
+                         0,0,0] 
+        self.o_spaces = [0,0,0,
+                         1,1,0,
                          0,0,0] 
         
         self.statue = [self.x_spaces,self.o_spaces]
@@ -19,34 +19,36 @@ class Game_statues:
         print("here")
 
 
-    def terminal(self,statue):#tested
+    def terminal(self,statue):#returns end state and who won
         #checks player who just moved
-        player = statue[ self.Turn(self.statue)]
+        turn = not self.Turn(self.statue)
+        player = statue[turn]
+        winner = self.Evaluation(turn)
 
         #victory statues 
         for row in range(3):
-            print(row)
             #rows 
             if player[0 + row*3] + player[1 + row*3]+ player[2 + row*3] == 3:
-                return 1
+                return [1,winner]
             #columns
             if player[0+row]+player[3+row]+player[6+row] == 3:
-                return 1
+                return [1,winner]
 
         #diagonals 
         if player[4]:
             if player[0] and player[8]:
-                return 1
+                return [1,winner]
                 
             else:
                 if player[2] and player[6]:
-                    return 1
+                    return [1,winner]
         #draw statues
         if sum(statue[0] + statue[1]) == len(statue[0]): 
-            return 1
+            print("no no mickey so not right")
+            return [1,0]
         
         #if not terminal statue 
-        return 0
+        return [0,0]
 
     def Actions(self,statue):#tested
         legal_moves = []
@@ -71,36 +73,42 @@ class Game_statues:
     def Turn(self,statue):#tested
         return (sum(statue[0]) + sum(statue[1]))%2
 
-    def Evaluation(self,statue):
-        # if a terminal state reached before all squares occupied
-        if (sum(statue[0]) + sum(statue[1])) != len(statue[0]):
-            if sum(statue[0]) > sum(statue[1]):
-                return 1
-            else:
-                return -1
-        #all spaces occupied 
+    def Evaluation(self,turn): #needs to be fixed 
+        if turn == 0:
+            return 1
         else:
-            #in state with only one space left it can only be x's victory
-            #or a draw
-            # basicaly can be 1 or 0
-            for row in range(3):
-            #rows 
-                if statue[0][0 + row*3] + statue[0][1 + row*3]+ statue[0][2 + row*3] == 3:
-                    return 1
-                #columns
-                if statue[0][0+row]+statue[0][3+row]+statue[0][6+row] == 3:
-                    return 1
+            return -1
 
-            #diagonals 
-            if statue[0][4]:
-                if statue[0][0] and statue[0][8]:
-                    return 1
+
+        # # if a terminal state reached before all squares occupied
+        # if (sum(statue[0]) + sum(statue[1])) != len(statue[0]):
+        #     if sum(statue[0]) > sum(statue[1]):
+        #         return 1
+        #     else:
+        #         return -1
+        # #all spaces occupied 
+        # else:
+        #     #in state with only one space left it can only be x's victory
+        #     #or a draw
+        #     # basicaly can be 1 or 0
+        #     for row in range(3):
+        #     #rows 
+        #         if statue[0][0 + row*3] + statue[0][1 + row*3]+ statue[0][2 + row*3] == 3:
+        #             return 1
+        #         #columns
+        #         if statue[0][0+row]+statue[0][3+row]+statue[0][6+row] == 3:
+        #             return 1
+
+        #     #diagonals 
+        #     if statue[0][4]:
+        #         if statue[0][0] and statue[0][8]:
+        #             return 1
                     
-                else:
-                    if statue[0][2] and statue[0][6]:
-                        return 1
+        #         else:
+        #             if statue[0][2] and statue[0][6]:
+        #                 return 1
 
-        return 0
+        # return 0
 
     def MaxValue(self,statue):
         if self.terminal(statue):
@@ -140,7 +148,7 @@ class Game_statues:
         return bestMove
 
     def test1(self,statue):
-            print(self.Evaluation(statue))
+            print(self.terminal(statue))
             self.visual(statue)
     # def FindBestMoveO(self,statue):
     #     if self.Turn(statue):
