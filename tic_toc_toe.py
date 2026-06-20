@@ -4,22 +4,28 @@ class Game_statues:
         self.board_setup()
 
     def board_setup(self):
-        self.x_spaces = [1,1,0,
-                         0,0,0,
+        self.x_spaces = [0,1,0,
+                         1,0,0,
                          0,0,0] 
         self.o_spaces = [0,0,1,
-                         0,1,0,
+                         0,0,0,
                          0,0,0] 
         
         self.statue = [self.x_spaces,self.o_spaces]
         self.winner = None
 
-    def terminal(self,statue):
+        print("here")
+        self.test1(self.statue)
+        print("here")
+
+
+    def terminal(self,statue):#tested
         #checks player who just moved
         player = statue[ self.Turn(self.statue)]
 
         #victory statues 
         for row in range(3):
+            print(row)
             #rows 
             if player[0 + row*3] + player[1 + row*3]+ player[2 + row*3] == 3:
                 return 1
@@ -38,9 +44,11 @@ class Game_statues:
         #draw statues
         if sum(statue[0] + statue[1]) == len(statue[0]): 
             return 1
+        
+        #if not terminal statue 
+        return 0
 
-    def Actions(self,statue):
-
+    def Actions(self,statue):#tested
         legal_moves = []
         for spaces in range(len(statue[0])):
             if statue[0][spaces] == 0 and statue[1][spaces] == 0:
@@ -48,7 +56,8 @@ class Game_statues:
 
         return legal_moves
 
-    def Result(self,statue,action):
+    def Result(self,statue,action): #tested
+        #returns game statue after speciffed action is applied
         bust = statue[self.Turn(statue)][:]
         bust[action] = 1
 
@@ -56,10 +65,10 @@ class Game_statues:
             sculpture = [bust,statue[1]]
         else:
             sculpture = [statue[0],bust]
-
+        # works fine but only returns one player's statue
         return sculpture
 
-    def Turn(self,statue):
+    def Turn(self,statue):#tested
         return (sum(statue[0]) + sum(statue[1]))%2
 
     def Evaluation(self,statue):
@@ -130,6 +139,9 @@ class Game_statues:
 
         return bestMove
 
+    def test1(self,statue):
+            print(self.Evaluation(statue))
+            self.visual(statue)
     # def FindBestMoveO(self,statue):
     #     if self.Turn(statue):
     #         value = 1000000
@@ -164,8 +176,9 @@ class Game_statues:
         print("")
         
 
-    def test(self):
-        print(self.MinValue(self.statue))
+    def test2(self,statue):
+        pass
+        # print(self.MinValue(self.statue))
         # print(self.MaxValue(self.statue))
         # self.visual(self.statue)
         # self.visual(self.Result(self.statue,0))
@@ -245,7 +258,7 @@ class playground:
 
 
 idle =Game_statues()
-idle.test()
+# idle.test()
 
 
 # idle.visual()
