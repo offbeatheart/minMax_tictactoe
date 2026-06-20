@@ -1,0 +1,251 @@
+class Game_statues:
+
+    def __init__(self):
+        self.board_setup()
+
+    def board_setup(self):
+        self.x_spaces = [1,1,0,
+                         0,0,0,
+                         0,0,0] 
+        self.o_spaces = [0,0,1,
+                         0,1,0,
+                         0,0,0] 
+        
+        self.statue = [self.x_spaces,self.o_spaces]
+        self.winner = None
+
+    def terminal(self,statue):
+        #checks player who just moved
+        player = statue[ self.Turn(self.statue)]
+
+        #victory statues 
+        for row in range(3):
+            #rows 
+            if player[0 + row*3] + player[1 + row*3]+ player[2 + row*3] == 3:
+                return 1
+            #columns
+            if player[0+row]+player[3+row]+player[6+row] == 3:
+                return 1
+
+        #diagonals 
+        if player[4]:
+            if player[0] and player[8]:
+                return 1
+                
+            else:
+                if player[2] and player[6]:
+                    return 1
+        #draw statues
+        if sum(statue[0] + statue[1]) == len(statue[0]): 
+            return 1
+
+    def Actions(self,statue):
+
+        legal_moves = []
+        for spaces in range(len(statue[0])):
+            if statue[0][spaces] == 0 and statue[1][spaces] == 0:
+                legal_moves.append(spaces)
+
+        return legal_moves
+
+    def Result(self,statue,action):
+        bust = statue[self.Turn(statue)][:]
+        bust[action] = 1
+
+        if not self.Turn(statue):
+            sculpture = [bust,statue[1]]
+        else:
+            sculpture = [statue[0],bust]
+
+        return sculpture
+
+    def Turn(self,statue):
+        return (sum(statue[0]) + sum(statue[1]))%2
+
+    def Evaluation(self,statue):
+        # if a terminal state reached before all squares occupied
+        if (sum(statue[0]) + sum(statue[1])) != len(statue[0]):
+            if sum(statue[0]) > sum(statue[1]):
+                return 1
+            else:
+                return -1
+        #all spaces occupied 
+        else:
+            #in state with only one space left it can only be x's victory
+            #or a draw
+            # basicaly can be 1 or 0
+            for row in range(3):
+            #rows 
+                if statue[0][0 + row*3] + statue[0][1 + row*3]+ statue[0][2 + row*3] == 3:
+                    return 1
+                #columns
+                if statue[0][0+row]+statue[0][3+row]+statue[0][6+row] == 3:
+                    return 1
+
+            #diagonals 
+            if statue[0][4]:
+                if statue[0][0] and statue[0][8]:
+                    return 1
+                    
+                else:
+                    if statue[0][2] and statue[0][6]:
+                        return 1
+
+        return 0
+
+    def MaxValue(self,statue):
+        if self.terminal(statue):
+            return self.Evaluation(statue)
+        value = -1000000
+
+        for action in self.Actions(statue):
+            value = max(value,self.MinValue(self.Result(statue,action)))
+        return value
+    
+    def MinValue(self,statue):
+        if self.terminal(statue):
+            return self.Evaluation(statue)
+        value = 1000000
+
+        for action in self.Actions(statue):
+            value = min(value,self.MaxValue(self.Result(statue,action)))
+        return value
+
+    def FindBestMoveX(self,statue):
+        if not self.Turn(statue):
+            Bestvalue = -1000000
+            bestMove = None 
+            for action in self.Actions(statue):
+
+                value= self.MinValue(self.Result(statue,action))
+                print(value)
+                print("""
+                    
+                    
+                        """)
+
+                if Bestvalue < value:
+                    Bestvalue = value
+                    bestMove = action
+
+        return bestMove
+
+    # def FindBestMoveO(self,statue):
+    #     if self.Turn(statue):
+    #         value = 1000000
+    #         bestMove = None 
+    #         for action in self.Actions(statue):
+    #             value= min(value,self.MaxValue(self.Result(statue,action)))
+    #             bestMove = action
+
+    #     return bestMove
+        
+
+
+    def visual(self,statue):
+        for mark in range(len(statue[0])):
+            if mark%3 ==0:
+                print("")
+                if statue[0][mark] == 1:
+
+                    print("x", end ="/")
+                elif statue[1][mark] == 1:
+                    print("o", end ="/")
+                else:
+                    print("#", end ="/")
+            else:
+                if statue[0][mark] == 1:
+
+                    print("x", end ="/")
+                elif statue[1][mark] == 1:
+                    print("o", end ="/")
+                else:
+                    print("#", end ="/")
+        print("")
+        
+
+    def test(self):
+        print(self.MinValue(self.statue))
+        # print(self.MaxValue(self.statue))
+        # self.visual(self.statue)
+        # self.visual(self.Result(self.statue,0))
+        # self.visual(self.Result(self.statue,7))
+        # self.visual(self.statue)
+        # if self.terminal(self.statue):
+        #     print(self.Evaluation(self.statue))
+            # self.visual(self.statue)
+        # self.visual(self.statue)
+        # self.Actions(self.statue)
+        # self.Turn(self.statue)
+
+
+
+class node:
+    def __init__(self,state,prev_action,pathcost):
+        self.state = state
+        self.prev_action = prev_action
+        self.pathcost =pathcost 
+
+class frontier:
+    #tested
+    def __init__(self):
+        self.front = []
+
+    def pop(self):
+        if not self.isEmpty():
+            temp = self.front[-1] 
+            self.front =self.front[0:-1]
+            return temp
+
+    def push(self,node):
+        self.front.append(node)
+    
+    def isEmpty(self):
+        if len(self.front) == 0:
+            return True
+        else:
+            return False
+    
+class explpored_nodes():
+    #tested
+    def __init__(self):
+        self.explored = []
+
+    def push(self,node):
+        self.explored.append(node)
+    
+    def search(self,node):
+        if node in self.explored:
+            return True
+        else:
+            return False 
+
+class playground:
+    def __init__(self):
+        self.idle =Game_statues()
+        self.frontier = frontier()
+        self.explored_nodes = explpored_nodes()
+        self.node = node(self.idle.statue,None,1)
+        self.frontier.push(self.node)
+        self.update()
+
+
+        
+
+    def update(self):
+        if self.frontier.isEmpty():
+            print("no solution")
+        else:
+            temp = self.frontier.pop()
+            if self.idle.terminal(temp.state):
+                pass
+
+        node = self.frontier.pop()
+        print(node)
+
+
+idle =Game_statues()
+idle.test()
+
+
+# idle.visual()
